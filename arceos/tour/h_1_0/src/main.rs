@@ -8,20 +8,20 @@
 extern crate axstd as std;
 extern crate alloc;
 
+mod csrs;
+mod regs;
 mod task;
 mod vcpu;
-mod regs;
-mod csrs;
 
-use std::io::{self, Read};
-use std::fs::File;
+use axhal::mem::{phys_to_virt, PAGE_SIZE_4K};
 use axhal::paging::MappingFlags;
-use axhal::mem::{PAGE_SIZE_4K, phys_to_virt};
-use vcpu::VmCpuRegisters;
-use riscv::register::{htinst, htval, scause, sstatus, stval};
 use csrs::defs::hstatus;
-use tock_registers::LocalRegisterCopy;
 use csrs::{traps, RiscvCsrTrait, CSR};
+use riscv::register::{htinst, htval, scause, sstatus, stval};
+use std::fs::File;
+use std::io::{self, Read};
+use tock_registers::LocalRegisterCopy;
+use vcpu::VmCpuRegisters;
 use vcpu::_run_guest;
 
 #[cfg_attr(feature = "axstd", no_mangle)]
@@ -34,7 +34,14 @@ fn main() {
 
     let entry = 0x8020_0000;
     let mut uspace = axmm::new_user_aspace().unwrap();
-    uspace.map_alloc(entry.into(), PAGE_SIZE_4K, MappingFlags::READ|MappingFlags::WRITE|MappingFlags::EXECUTE|MappingFlags::USER, true).unwrap();
+    uspace
+        .map_alloc(
+            entry.into(),
+            PAGE_SIZE_4K,
+            MappingFlags::READ | MappingFlags::WRITE | MappingFlags::EXECUTE | MappingFlags::USER,
+            true,
+        )
+        .unwrap();
 
     let (paddr, _, _) = uspace
         .page_table()
@@ -56,9 +63,8 @@ fn main() {
     let ept_root = uspace.page_table_root();
     let mut ctx = VmCpuRegisters::default();
     // Set hstatus
-    let mut hstatus = LocalRegisterCopy::<usize, hstatus::Register>::new(
-        riscv::register::hstatus::read().bits(),
-    );
+    let mut hstatus =
+        LocalRegisterCopy::<usize, hstatus::Register>::new(riscv::register::hstatus::read().bits());
     hstatus.modify(hstatus::spv::Guest);
     // Set SPVP bit in order to accessing VS-mode memory from HS-mode.
     hstatus.modify(hstatus::spvp::Supervisor);

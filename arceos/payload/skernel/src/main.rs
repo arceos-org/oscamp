@@ -5,11 +5,7 @@ use core::panic::PanicInfo;
 
 #[no_mangle]
 unsafe extern "C" fn _start() -> ! {
-    core::arch::asm!(
-        "li a7, 8",
-        "ecall",
-        options(noreturn)
-    )
+    core::arch::asm!("li a7, 8", "ecall", options(noreturn))
 }
 
 #[panic_handler]

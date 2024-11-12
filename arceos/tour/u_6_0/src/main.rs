@@ -6,10 +6,10 @@ extern crate axstd as std;
 #[macro_use]
 extern crate axlog;
 
-use std::thread;
 use std::collections::VecDeque;
-use std::sync::Arc;
 use std::os::arceos::modules::axsync::spin::SpinNoIrq;
+use std::sync::Arc;
+use std::thread;
 
 const LOOP_NUM: usize = 256;
 

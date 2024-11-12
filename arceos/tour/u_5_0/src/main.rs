@@ -5,10 +5,10 @@
 #[cfg(feature = "axstd")]
 extern crate axstd as std;
 
-use std::thread;
 use std::collections::VecDeque;
-use std::sync::Arc;
 use std::os::arceos::modules::axsync::spin::SpinNoIrq;
+use std::sync::Arc;
+use std::thread;
 
 const LOOP_NUM: usize = 64;
 

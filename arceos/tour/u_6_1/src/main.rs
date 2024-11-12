@@ -6,11 +6,11 @@ extern crate axstd as std;
 #[macro_use]
 extern crate axlog;
 
-use std::thread;
 use std::collections::VecDeque;
+use std::os::arceos::modules::axtask::WaitQueue;
 use std::sync::Arc;
 use std::sync::Mutex;
-use std::os::arceos::modules::axtask::WaitQueue;
+use std::thread;
 
 const LOOP_NUM: usize = 256;
 static WQ: WaitQueue = WaitQueue::new();

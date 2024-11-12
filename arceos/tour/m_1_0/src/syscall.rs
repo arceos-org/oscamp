@@ -1,8 +1,8 @@
 #![allow(dead_code)]
 
+use axerrno::LinuxError;
 use axhal::arch::TrapFrame;
 use axhal::trap::{register_trap_handler, SYSCALL};
-use axerrno::LinuxError;
 
 const SYS_EXIT: usize = 93;
 

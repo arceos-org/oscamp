@@ -1,5 +1,8 @@
 use core::fmt;
 
+use crate::backend::Backend;
+use crate::mapping_err_to_ax_err;
+use crate::paging_err_to_ax_err;
 use axerrno::{ax_err, AxError, AxResult};
 use axhal::{
     mem::phys_to_virt,
@@ -9,9 +12,6 @@ use memory_addr::{
     is_aligned_4k, pa, MemoryAddr, PageIter4K, PhysAddr, VirtAddr, VirtAddrRange, PAGE_SIZE_4K,
 };
 use memory_set::{MemoryArea, MemorySet};
-use crate::backend::Backend;
-use crate::paging_err_to_ax_err;
-use crate::mapping_err_to_ax_err;
 
 /// The virtual memory address space.
 pub struct AddrSpace {

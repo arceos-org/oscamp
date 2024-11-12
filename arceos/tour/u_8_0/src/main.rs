@@ -5,9 +5,9 @@
 #[cfg(feature = "axstd")]
 extern crate axstd as std;
 
-use std::thread;
-use std::io::{self, prelude::*};
 use std::fs::File;
+use std::io::{self, prelude::*};
+use std::thread;
 
 #[cfg_attr(feature = "axstd", no_mangle)]
 fn main() {

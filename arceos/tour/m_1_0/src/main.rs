@@ -6,16 +6,16 @@
 extern crate axstd as std;
 extern crate alloc;
 
-mod task;
 mod syscall;
+mod task;
 
-use std::io::{self, Read};
-use std::fs::File;
-use axhal::paging::MappingFlags;
-use axhal::mem::{PAGE_SIZE_4K, phys_to_virt};
-use axhal::arch::UspaceContext;
-use axsync::Mutex;
 use alloc::sync::Arc;
+use axhal::arch::UspaceContext;
+use axhal::mem::{phys_to_virt, PAGE_SIZE_4K};
+use axhal::paging::MappingFlags;
+use axsync::Mutex;
+use std::fs::File;
+use std::io::{self, Read};
 
 const USER_STACK_SIZE: usize = 0x10000;
 const KERNEL_STACK_SIZE: usize = 0x40000; // 256 KiB
@@ -29,7 +29,14 @@ fn main() {
 
     let entry = 0x1000;
     let mut uspace = axmm::new_user_aspace().unwrap();
-    uspace.map_alloc(entry.into(), PAGE_SIZE_4K, MappingFlags::READ|MappingFlags::WRITE|MappingFlags::EXECUTE|MappingFlags::USER, true).unwrap();
+    uspace
+        .map_alloc(
+            entry.into(),
+            PAGE_SIZE_4K,
+            MappingFlags::READ | MappingFlags::WRITE | MappingFlags::EXECUTE | MappingFlags::USER,
+            true,
+        )
+        .unwrap();
 
     let (paddr, _, _) = uspace
         .page_table()
@@ -52,12 +59,14 @@ fn main() {
         "Mapping user stack: {:#x?} -> {:#x?}",
         ustack_vaddr, ustack_top
     );
-    uspace.map_alloc(
-        ustack_vaddr,
-        crate::USER_STACK_SIZE,
-        MappingFlags::READ | MappingFlags::WRITE | MappingFlags::USER,
-        true,
-    ).unwrap();
+    uspace
+        .map_alloc(
+            ustack_vaddr,
+            crate::USER_STACK_SIZE,
+            MappingFlags::READ | MappingFlags::WRITE | MappingFlags::USER,
+            true,
+        )
+        .unwrap();
     println!("New user address space: {:#x?}", uspace);
 
     let user_task = task::spawn_user_task(
