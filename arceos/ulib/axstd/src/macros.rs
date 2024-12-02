@@ -18,6 +18,6 @@ macro_rules! print {
 macro_rules! println {
     () => { $crate::print!("\n") };
     ($($arg:tt)*) => {
-        $crate::io::__print_impl(format_args!("{}\n", format_args!($($arg)*)));
+        $crate::io::__print_impl(format_args!("\x1B[45m{}\x1B[0m\n", format_args!($($arg)*)));
     }
 }
