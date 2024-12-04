@@ -80,3 +80,4 @@ arceos_api = { workspace = true }
 axio = "0.1"
 axerrno = "0.1"
 kspin = "0.1"
+hashbrown = "0.12"

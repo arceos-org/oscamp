@@ -42,6 +42,7 @@ fn main() {
             } else {
                 println!("worker2: nothing to do!");
                 // TODO: it should sleep and wait for notify!
+                // thread::sleep(Duration::from_secs(3));
                 thread::yield_now();
             }
         }

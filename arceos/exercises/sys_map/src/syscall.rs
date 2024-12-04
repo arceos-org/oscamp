@@ -8,6 +8,7 @@ use axtask::current;
 use axtask::TaskExtRef;
 use axhal::paging::MappingFlags;
 use arceos_posix_api as api;
+use memory_addr::{MemoryAddr, PAGE_SIZE_4K};
 
 const SYS_IOCTL: usize = 29;
 const SYS_OPENAT: usize = 56;
@@ -140,7 +141,19 @@ fn sys_mmap(
     fd: i32,
     _offset: isize,
 ) -> isize {
-    unimplemented!("no sys_mmap!");
+    // unimplemented!("no sys_mmap!");
+    let task=axtask::current();
+    let mut uspace = task.task_ext().aspace.lock();
+    let add_src=uspace.find_free_area(uspace.base(), length, 
+        memory_addr::AddrRange::new(uspace.base(), uspace.end())).unwrap();
+
+        let add_at=add_src.align_down_4k()+0x19000+0x19000;
+
+        uspace.map_alloc(add_at, PAGE_SIZE_4K, MappingFlags::READ|MappingFlags::WRITE|MappingFlags::EXECUTE|MappingFlags::USER, true).unwrap();
+
+        uspace.write(add_at, b"mmap");
+
+        add_at.as_usize() as isize
 }
 
 fn sys_openat(dfd: c_int, fname: *const c_char, flags: c_int, mode: api::ctypes::mode_t) -> isize {

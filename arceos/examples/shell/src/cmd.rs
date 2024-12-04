@@ -27,6 +27,8 @@ const CMD_TABLE: &[(&str, CmdHandler)] = &[
     ("pwd", do_pwd),
     ("rm", do_rm),
     ("uname", do_uname),
+    ("rename",do_rename),
+    ("mv",do_mv),
 ];
 
 fn file_type_to_char(ty: FileType) -> char {
@@ -259,6 +261,69 @@ fn do_uname(_args: &str) {
         plat = platform,
     );
 }
+
+fn do_rename(args: &str) {
+    let mut args_iter = args.split_whitespace();
+    let src = match args_iter.next() {
+        Some(arg) => arg,
+        None => {
+            return;
+        }
+    };
+    let dest = match args_iter.next() {
+        Some(arg) => arg,
+        None => {
+            return;
+        }
+    };
+
+    // Perform the renaming (copy and remove as needed)
+    match std::fs::rename(src, dest) {
+        Ok(_) => println!("Renamed {} to {}", src, dest),
+        Err(e) => println!("Error renaming {}: {}", src, e),
+    }
+}
+
+fn do_mv(args: &str) {
+    let mut args_iter = args.split_whitespace();
+    let src = match args_iter.next() {
+        Some(arg) => arg,
+        None => {
+            return;
+        }
+    };
+    let dest = match args_iter.next() {
+        Some(arg) => arg,
+        None => {
+            return;
+        }
+    };
+
+    if let Ok(metadata) = fs::metadata(dest) {
+        if !metadata.is_dir() {
+            if let Err(e) = fs::create_dir(dest) {
+                print_err!("mv", dest, e);
+                return;
+            }
+
+            // let final_path = dest.join(src.file_name().unwrap());
+            // // 使用 fs::rename 进行文件移动
+            // match std::fs::rename(from, final_path) {
+            //     Ok(_) => println!("Moved {} to {}", from, to),
+            //     Err(e) => print_err!("mv", from, e),
+            // }
+        }
+    } else {
+        // 如果目标路径是文件名，则直接重命名
+        match std::fs::rename(src, dest) {
+            Ok(_) => println!("Moved {} to {}", src, dest),
+            Err(e) => print_err!("mv", src, e),
+        }
+    }
+
+
+}
+
 
 fn do_help(_args: &str) {
     println!("Available commands:");
