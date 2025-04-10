@@ -60,15 +60,27 @@ fn main() {
                     assert_eq!(addr, 0x2200_0000.into(), "Now we ONLY handle pflash#2.");
                     let mapping_flags = MappingFlags::from_bits(0xf).unwrap();
                     // Passthrough-Mode
-                    let _ = aspace.map_linear(addr, addr.as_usize().into(), 4096, mapping_flags);
+                    // let _ = aspace.map_linear(addr, addr.as_usize().into(), 4096, mapping_flags);
 
-                    /*
                     // Emulator-Mode
                     // Pretend to load file to fill buffer.
                     let buf = "pfld";
+
+                    // 从 disk.img 加载 pflash 文件内容
+                    // const DISK_IMG_PATH: &str = "/home/linux/vscode/oscamp/arceos/disk.img";
+                    // let mut disk_file = File::open(DISK_IMG_PATH).expect("Failed to open disk.img");
+                    // let mut buf = [0u8; 4096]; // 每次加载一个页帧大小
+                    // use std::io::Seek;
+                    // use crate::std::io::Read;
+                    // disk_file
+                    //     .seek(std::io::SeekFrom::Start(KERNEL_BASE.try_into().unwrap()))
+                    //     .expect("Failed to seek to pflash location");
+                    // disk_file
+                    //     .read_exact(&mut buf)
+                    //     .expect("Failed to read pflash data");
+
                     aspace.map_alloc(addr, 4096, mapping_flags, true);
                     aspace.write(addr, buf.as_bytes());
-                    */
                 },
                 _ => {
                     panic!("Unhandled VM-Exit: {:?}", exit_reason);
