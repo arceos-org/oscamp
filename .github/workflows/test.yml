@@ -1,0 +1,66 @@
+name: auto-test
+
+on: [push]
+
+env:
+  CARGO_TERM_COLOR: always
+  rust_toolchain: nightly
+
+jobs:
+  basic-test:
+    runs-on: ubuntu-latest
+    env:
+      PATH: /opt/musl/x86_64-linux-musl-cross/bin:/opt/musl/aarch64-linux-musl-cross/bin:/opt/musl/riscv64-linux-musl-cross/bin:$HOME/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH
+    steps:
+      - name: basic test check 
+        uses: actions/checkout@v4
+        
+      - name: install dependencies
+        run: |
+          sudo apt-get update 
+          sudo apt-get install -y \
+            wget \
+            xxd \
+            curl \
+            gcc \
+            g++ \
+            make \
+            libclang-dev \
+            qemu-system-misc \
+            bash \
+            sudo \
+            git \
+            dosfstools \
+            build-essential \
+            pkg-config \
+            libssl-dev \
+            libz-dev \
+            libclang-dev
+
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          source "$HOME/.cargo/env"
+          cargo install cargo-binutils
+
+          mkdir -p /opt/musl && cd /opt/musl
+          wget https://musl.cc/aarch64-linux-musl-cross.tgz
+          wget https://musl.cc/riscv64-linux-musl-cross.tgz
+          wget https://musl.cc/x86_64-linux-musl-cross.tgz
+          tar zxf aarch64-linux-musl-cross.tgz
+          tar zxf riscv64-linux-musl-cross.tgz
+          tar zxf x86_64-linux-musl-cross.tgz
+
+          qemu-system-riscv64 --version
+
+
+      - name: Run basic
+        id : run-test
+        run: |
+          source $HOME/.cargo/env
+
+          cargo --version
+          chmod -R +x scripts/
+          
+          ./scripts/tour_test.sh 
+          
+
+          rm -rf Success.log Error.log
