@@ -171,7 +171,7 @@ build: $(OUT_DIR) $(OUT_BIN)
 disasm:
 	$(OBJDUMP) $(OUT_ELF) | less
 
-run: disk_img pflash_img build justrun
+run: build justrun
 
 justrun:
 	$(call run_qemu)
@@ -211,7 +211,6 @@ unittest_no_fail_fast:
 	$(call unit_test,--no-fail-fast)
 
 disk_img:
-	@rm -f $(DISK_IMG)
 ifneq ($(wildcard $(DISK_IMG)),)
 	@printf "$(YELLOW_C)warning$(END_C): disk image \"$(DISK_IMG)\" already exists!\n"
 else
