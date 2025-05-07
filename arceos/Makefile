@@ -181,7 +181,7 @@ debug: build
 	sleep 1
 	$(GDB) $(OUT_ELF) \
 	  -ex 'target remote localhost:1234' \
-	  -ex 'b rust_entry' \
+	  -ex 'b rust_main' \
 	  -ex 'continue' \
 	  -ex 'disp /16i $$pc'
 

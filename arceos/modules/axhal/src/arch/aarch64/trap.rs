@@ -65,6 +65,7 @@ fn handle_instruction_abort(tf: &TrapFrame, iss: u64, is_user: bool) {
 }
 
 fn handle_data_abort(tf: &TrapFrame, iss: u64, is_user: bool) {
+    debug!("ISS={:#x} tf={:#x?} is_user={}", iss, tf, is_user);
     let wnr = (iss & (1 << 6)) != 0; // WnR: Write not Read
     let cm = (iss & (1 << 8)) != 0; // CM: Cache maintenance
     let mut access_flags = if wnr & !cm {

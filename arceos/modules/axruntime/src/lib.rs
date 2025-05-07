@@ -139,6 +139,10 @@ pub extern "C" fn rust_main(cpu_id: usize, dtb: usize) -> ! {
             r.name,
             r.flags
         );
+        info!("  virt: [{:x?}, {:x?})",
+        axhal::mem::phys_to_virt(r.paddr.into()).as_usize(), 
+        axhal::mem::phys_to_virt(r.paddr.into()).as_usize() + r.size);
+        info!("\n");
     }
 
     #[cfg(any(feature = "alloc", feature = "alt_alloc"))]
