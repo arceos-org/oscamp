@@ -13,16 +13,14 @@ unsafe extern "C" fn _start() -> ! {
     );
     #[cfg(target_arch = "x86_64")]
     core::arch::asm!(
-        "mov rax, 60",
-        "xor rdi, rdi",
-        "syscall",
+        "mov rax, 8",  // 将系统调用号 8 放入 rax 寄存器
+        "syscall",     // 执行系统调用
         options(noreturn)
     );
     #[cfg(target_arch = "aarch64")]
     core::arch::asm!(
-        "mov x8, 93",
-        "mov x0, 0",
-        "svc 0",
+        "mov x8, #8",  // 将系统调用号 8 放入 x8 寄存器
+        "svc #0",      // 执行系统调用
         options(noreturn)
     );
 }

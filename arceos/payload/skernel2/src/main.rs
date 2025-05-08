@@ -15,22 +15,20 @@ unsafe extern "C" fn _start() -> ! {
     );
     #[cfg(target_arch = "x86_64")]
     core::arch::asm!(
-        "mov rax, qword ptr [0x40]",  // 从地址0x40(64)加载数据 -> rax
-        "cpuid",                       // 获取CPU信息到rbx
-        "shr rbx, 24",                // 提取APIC ID (核心ID)
-        "mov rdi, rax",               // 参数1：加载的数据
-        "mov rsi, rbx",               // 参数2：核心ID
-        "mov rax, 8",                 // 设置系统调用号
-        "syscall",                    // 执行系统调用
+        // x86_64 没有直接对应 mhartid 的方式，可以用 CPUID 但这里简化处理
+        "xor rsi, rsi",          // 清零 rsi (对应 a1)
+        "mov rdi, [64]",         // 从地址 64 加载值到 rdi (对应 a0)
+        "mov rax, 8",            // 系统调用号
+        "syscall",               // 执行系统调用
         options(noreturn)
     );
     #[cfg(target_arch = "aarch64")]
         core::arch::asm!(
-        "mrs x1, mpidr_el1",         // 读取核心ID寄存器
-        "and x1, x1, #0xff",         // 提取当前核心ID
-        "ldr x0, [xzr, #64]",        // 从地址64加载数据 -> x0
-        "mov x8, #8",                // 设置系统调用号
-        "svc #0",                    // 执行系统调用
+        "mrs x1, mpidr_el1",     // 获取处理器 ID 到 x1 (对应 a1)
+        "mov x9, #64",           // 将地址 64 放入临时寄存器 x9
+        "ldr x0, [x9]",          // 从地址 64 加载值到 x0 (对应 a0)
+        "mov x8, #8",            // 系统调用号
+        "svc #0",                // 执行系统调用
         options(noreturn)
     );
 }
