@@ -4,7 +4,7 @@ ARCH ?= riscv64
 all: $(SUB_DIRS)
 
 $(SUB_DIRS): FORCE
-	make -C $@ ARCH=$(ARCH)
+	make ARCH=$(ARCH) -C $@ 
 
 FORCE:
 

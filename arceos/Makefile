@@ -223,7 +223,7 @@ pflash_img:
 	$(call mk_pflash,$(PFLASH_IMG))
 
 payload:
-	@make -C ./payload ARCH=$(ARCH)
+	@make ARCH=$(ARCH) -C ./payload 
 
 clean: clean_c
 	rm -rf $(APP)/*.bin $(APP)/*.elf
