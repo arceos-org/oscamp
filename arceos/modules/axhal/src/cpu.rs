@@ -32,6 +32,8 @@ pub fn this_cpu_is_bsp() -> bool {
 pub(crate) unsafe fn cache_current_task_ptr() {
     use tock_registers::interfaces::Writeable;
     aarch64_cpu::registers::SP_EL0.set(CURRENT_TASK_PTR.read_current_raw() as u64);
+    use tock_registers::interfaces::Readable;
+    ax_println!("cache_current_task_ptr: SP_EL0={:#x?}", aarch64_cpu::registers::SP_EL0.get());
 }
 
 /// Gets the pointer to the current task with preemption-safety.
@@ -53,9 +55,13 @@ pub fn current_task_ptr<T>() -> *const T {
     }
     #[cfg(target_arch = "aarch64")]
     {
-        // on ARM64, we use `SP_EL0` to store the task pointer.
+        //on ARM64, we use `SP_EL0` to store the task pointer.
         use tock_registers::interfaces::Readable;
         aarch64_cpu::registers::SP_EL0.get() as _
+       
+        // unsafe {
+        //     CURRENT_TASK_PTR.read_current_raw() as _
+        // }
     }
 }
 
