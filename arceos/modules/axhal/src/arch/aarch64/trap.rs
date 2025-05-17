@@ -99,8 +99,9 @@ fn handle_sync_exception(tf: &mut TrapFrame) {
     let esr = ESR_EL1.extract();
     let iss = esr.read(ESR_EL1::ISS);
     match esr.read_as_enum(ESR_EL1::EC) {
+        #[cfg(feature = "uspace")]
         Some(ESR_EL1::EC::Value::SVC64) => {
-            warn!("No syscall is supported currently!");
+            tf.r[0] = crate::trap::handle_syscall(tf, tf.r[8] as usize) as u64;
         }
         Some(ESR_EL1::EC::Value::InstrAbortLowerEL) => handle_instruction_abort(tf, iss, true),
         Some(ESR_EL1::EC::Value::InstrAbortCurrentEL) => handle_instruction_abort(tf, iss, false),

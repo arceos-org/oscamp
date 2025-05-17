@@ -11,21 +11,21 @@ unsafe extern "C" fn _start() -> ! {
         "sw a0, (sp)",
         "li a7, 93",
         "ecall",
-        options(noreturn)
+        options(noreturn),
     );
     #[cfg(target_arch = "x86_64")]
     core::arch::asm!(
         "mov rax, 60",
         "xor rdi, rdi",
         "syscall",
-        options(noreturn)
+        options(noreturn),
     );
     #[cfg(target_arch = "aarch64")]
     core::arch::asm!(
-        "mov x8, 93",
-        "mov x0, 0",
-        "svc 0",
-        options(noreturn)
+        "str w0, [sp, #-4]!",  // 对应 RISC-V 的栈操作
+        "mov x8, #93",         // AArch64 系统调用号存放在 x8
+        "svc #0",              // 执行系统调用
+        options(noreturn),
     );
 }
 
