@@ -44,7 +44,10 @@ fn main() {
     // Let's kick off the user process.
     let user_task = task::spawn_user_task(
         Arc::new(Mutex::new(uspace)),
+        #[cfg(target_arch = "riscv64")]
         UspaceContext::new(APP_ENTRY.into(), ustack_top),
+        #[cfg(target_arch = "aarch64")]
+        UspaceContext::new(APP_ENTRY.into(), ustack_top, 0),
     );
 
     // Wait for user process to exit ...
@@ -70,6 +73,7 @@ fn init_user_stack(uspace: &mut AddrSpace, populating: bool) -> io::Result<VirtA
 
 #[register_trap_handler(PAGE_FAULT)]
 fn handle_page_fault(vaddr: VirtAddr, access_flags: MappingFlags, is_user: bool) -> bool {
+    ax_println!("handle page fault: {:#x?} {:#x?}", vaddr, access_flags);
     if is_user {
         if !axtask::current()
             .task_ext()
