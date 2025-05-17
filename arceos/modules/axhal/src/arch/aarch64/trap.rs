@@ -6,7 +6,7 @@ use tock_registers::interfaces::Readable;
 
 use super::TrapFrame;
 
-global_asm!(include_str!("trap.S"));
+global_asm!(include_str!("trap.S"), cache_current_task_ptr = sym crate::cpu::cache_current_task_ptr);
 
 #[repr(u8)]
 #[derive(Debug)]
