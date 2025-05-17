@@ -2,6 +2,7 @@ use alloc::{boxed::Box, string::String, sync::Arc};
 use core::ops::Deref;
 use core::sync::atomic::{AtomicBool, AtomicI32, AtomicU64, AtomicU8, Ordering};
 use core::{alloc::Layout, cell::UnsafeCell, fmt, ptr::NonNull};
+use axlog::ax_println;
 
 #[cfg(feature = "preempt")]
 use core::sync::atomic::AtomicUsize;
@@ -130,8 +131,10 @@ impl TaskInner {
     ///
     /// It will return immediately if the task has already exited (but not dropped).
     pub fn join(&self) -> Option<i32> {
+        ax_println!("begin task join: {}", self.id_name());
         self.wait_for_exit
             .wait_until(|| self.state() == TaskState::Exited);
+        ax_println!("task join: {}", self.id_name());
         Some(self.exit_code.load(Ordering::Acquire))
     }
 
@@ -410,6 +413,7 @@ impl CurrentTask {
         #[cfg(feature = "tls")]
         axhal::arch::write_thread_pointer(init_task.tls.tls_ptr() as usize);
         let ptr = Arc::into_raw(init_task);
+        ax_println!("init current task: {:#x?}", ptr);
         axhal::cpu::set_current_task_ptr(ptr);
     }
 
@@ -417,6 +421,7 @@ impl CurrentTask {
         let Self(arc) = prev;
         ManuallyDrop::into_inner(arc); // `call Arc::drop()` to decrease prev task reference count.
         let ptr = Arc::into_raw(next);
+        ax_println!("set current task: {:#x?}", ptr);
         axhal::cpu::set_current_task_ptr(ptr);
     }
 }
