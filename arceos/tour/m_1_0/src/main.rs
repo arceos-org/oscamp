@@ -49,7 +49,7 @@ fn main() {
         #[cfg(target_arch = "aarch64")]
         UspaceContext::new(APP_ENTRY.into(), ustack_top, 0),
     );
-
+    ax_println!("User task spawned");
     // Wait for user process to exit ...
     let exit_code = user_task.join();
     ax_println!("monolithic kernel exit [{:?}] normally!", exit_code);

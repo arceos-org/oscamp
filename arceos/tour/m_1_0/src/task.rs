@@ -43,6 +43,7 @@ pub fn spawn_user_task(aspace: Arc<Mutex<AddrSpace>>, uctx: UspaceContext) -> Ax
         "userboot".into(),
         crate::KERNEL_STACK_SIZE,
     );
+    ax_println!("Spawn user task: {:#x?}", task);
     task.ctx_mut()
         .set_page_table_root(aspace.lock().page_table_root());
     task.init_task_ext(TaskExt::new(uctx, aspace));

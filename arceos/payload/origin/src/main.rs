@@ -22,7 +22,8 @@ unsafe extern "C" fn _start() -> ! {
     );
     #[cfg(target_arch = "aarch64")]
     core::arch::asm!(
-        "str w0, [sp, #-4]!",  // 对应 RISC-V 的栈操作
+        "sub sp, sp, #4",      // AArch64 栈操作
+        "mov sp, x0",           // 设置返回值为 0
         "mov x8, #93",         // AArch64 系统调用号存放在 x8
         "svc #0",              // 执行系统调用
         options(noreturn),
