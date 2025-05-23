@@ -1,0 +1,61 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  setup-and-test-tour:
+    runs-on: ubuntu-latest
+    env:
+        qemu-version: 9.2.1
+        rust-version: nightly-2024-09-04
+    steps:
+    - uses: actions/checkout@v4
+    - name: install dependencies
+      run: |
+        sudo apt-get update 
+        sudo apt-get install -y \
+            wget \
+            xxd \
+            curl \
+            gcc \
+            g++ \
+            make \
+            libclang-dev \
+            bash \
+            sudo \
+            git \
+            dosfstools \
+            build-essential \
+            pkg-config \
+            libssl-dev \
+            libz-dev \
+            libclang-dev
+    
+    - uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: ${{ env.rust-version }}
+        components: rust-src, llvm-tools, clippy, rustfmt
+        targets: x86_64-unknown-none, riscv64gc-unknown-none-elf, aarch64-unknown-none, aarch64-unknown-none-softfloat, loongarch64-unknown-none
+    - uses: Swatinem/rust-cache@v2
+    - run: cargo install cargo-binutils
+    - name: Check rust version
+      run: rustc --version --verbose
+    - uses: ./.github/workflows/actions/setup-musl
+      with:
+        arch: x86_64
+    - uses: ./.github/workflows/actions/setup-musl
+      with:
+        arch: riscv64
+    - uses: ./.github/workflows/actions/setup-musl
+      with:
+        arch: aarch64
+    - uses: ./.github/workflows/actions/setup-musl
+      with:
+        arch: loongarch64
+    - uses: ./.github/workflows/actions/setup-qemu
+      with:
+        qemu-version: ${{ env.qemu-version }}
+    
+    - name: Run tour
+      run: |
+        ./scripts/tour_test.sh 
