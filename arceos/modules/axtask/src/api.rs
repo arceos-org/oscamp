@@ -1,7 +1,6 @@
 //! Task APIs for multi-task configuration.
 
 use alloc::{string::String, sync::Arc};
-use axlog::ax_println;
 
 pub(crate) use crate::run_queue::{AxRunQueue, RUN_QUEUE};
 
@@ -158,7 +157,6 @@ pub fn sleep_until(deadline: axhal::time::TimeValue) {
 
 /// Exits the current task.
 pub fn exit(exit_code: i32) -> ! {
-    ax_println!("exit: exit_code={}", exit_code);
     RUN_QUEUE.lock().exit_current(exit_code)
 }
 

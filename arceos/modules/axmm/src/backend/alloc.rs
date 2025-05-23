@@ -2,7 +2,6 @@ use axalloc::global_allocator;
 use axhal::mem::{phys_to_virt, virt_to_phys};
 use axhal::paging::{MappingFlags, PageSize, PageTable};
 use memory_addr::{PageIter4K, PhysAddr, VirtAddr, PAGE_SIZE_4K};
-use axlog::ax_println;
 
 use super::Backend;
 
@@ -93,10 +92,6 @@ impl Backend {
         pt: &mut PageTable,
         populate: bool,
     ) -> bool {
-        ax_println!(
-            "handle_page_fault_alloc: {:#x?} {:?} (populate={})",
-            vaddr, orig_flags, populate
-        );
         if populate {
             false // Populated mappings should not trigger page faults.
         } else if let Some(frame) = alloc_frame(true) {

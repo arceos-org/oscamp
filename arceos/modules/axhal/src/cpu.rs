@@ -59,9 +59,6 @@ pub fn current_task_ptr<T>() -> *const T {
         use tock_registers::interfaces::Readable;
         aarch64_cpu::registers::SP_EL0.get() as _
        
-        // unsafe {
-        //     CURRENT_TASK_PTR.read_current_raw() as _
-        // }
     }
 }
 
@@ -75,7 +72,6 @@ pub fn current_task_ptr<T>() -> *const T {
 /// The given `ptr` must be pointed to a valid task structure.
 #[inline]
 pub unsafe fn set_current_task_ptr<T>(ptr: *const T) {
-    ax_println!("set_current_task_ptr: ptr={:p}", ptr);
     #[cfg(target_arch = "x86_64")]
     {
         CURRENT_TASK_PTR.write_current_raw(ptr as usize)

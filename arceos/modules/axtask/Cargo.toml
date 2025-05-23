@@ -30,7 +30,6 @@ test = ["percpu?/sp-naive"]
 cfg-if = "1.0"
 log = "0.4.21"
 axhal = { workspace = true }
-axlog = { workspace = true }
 axconfig = { workspace = true, optional = true }
 percpu = { version = "0.1", optional = true }
 kspin = { version = "0.1", optional = true }
