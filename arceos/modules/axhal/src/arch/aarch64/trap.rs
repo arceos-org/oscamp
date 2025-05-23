@@ -107,6 +107,10 @@ fn handle_sync_exception(tf: &mut TrapFrame) {
         Some(ESR_EL1::EC::Value::InstrAbortCurrentEL) => handle_instruction_abort(tf, iss, false),
         Some(ESR_EL1::EC::Value::DataAbortLowerEL) => handle_data_abort(tf, iss, true),
         Some(ESR_EL1::EC::Value::DataAbortCurrentEL) => handle_data_abort(tf, iss, false),
+        Some(ESR_EL1::EC::Value::TrappedFP) => {
+            debug!("Trapped FP @ {:#x} ", tf.elr);
+            tf.elr += 4;
+        }
         Some(ESR_EL1::EC::Value::Brk64) => {
             debug!("BRK #{:#x} @ {:#x} ", iss, tf.elr);
             tf.elr += 4;

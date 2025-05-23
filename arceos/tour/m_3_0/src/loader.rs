@@ -20,6 +20,7 @@ const ELF_HEAD_BUF_SIZE: usize = 256;
 pub fn load_user_app(fname: &str, uspace: &mut AddrSpace) -> io::Result<usize> {
     let mut file = File::open(fname)?;
     let (phdrs, entry, _, _) = load_elf_phdrs(&mut file)?;
+    ax_println!("phdrs: {:#X} phnum: {}", phdrs[0].p_vaddr, phdrs.len());
 
     for phdr in &phdrs {
         ax_println!(
@@ -35,6 +36,7 @@ pub fn load_user_app(fname: &str, uspace: &mut AddrSpace) -> io::Result<usize> {
         uspace.map_alloc(vaddr, vaddr_end-vaddr, MappingFlags::READ|MappingFlags::WRITE|MappingFlags::EXECUTE|MappingFlags::USER, true)?;
 
         let mut data = vec![0u8; phdr.p_memsz as usize];
+        ax_println!("data: {:#X} size: {:#X}", phdr.p_vaddr, phdr.p_memsz);
         file.seek(SeekFrom::Start(phdr.p_offset))?;
 
         let filesz = phdr.p_filesz as usize;
