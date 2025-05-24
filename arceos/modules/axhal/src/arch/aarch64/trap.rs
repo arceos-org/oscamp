@@ -111,6 +111,10 @@ fn handle_sync_exception(tf: &mut TrapFrame) {
             debug!("Trapped FP @ {:#x} ", tf.elr);
             tf.elr += 4;
         }
+        Some(ESR_EL1::EC::Value::Unknown) => {
+            debug!("Unknown exception @ {:#x} ", tf.elr);
+            tf.elr += 4;
+        }
         Some(ESR_EL1::EC::Value::Brk64) => {
             debug!("BRK #{:#x} @ {:#x} ", iss, tf.elr);
             tf.elr += 4;
