@@ -42,7 +42,10 @@ fn main() {
     // Let's kick off the user process.
     let user_task = task::spawn_user_task(
         Arc::new(Mutex::new(uspace)),
+        #[cfg(target_arch = "riscv64")]
         UspaceContext::new(APP_ENTRY.into(), ustack_top),
+        #[cfg(target_arch = "aarch64")]
+        UspaceContext::new(APP_ENTRY.into(), ustack_top, 0),
     );
 
     // Wait for user process to exit ...

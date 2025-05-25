@@ -7,7 +7,12 @@ use crate::APP_ENTRY;
 use alloc::vec;
 use alloc::vec::Vec;
 
+#[cfg(target_arch = "riscv64")]
+/// Physical address for pflash#1
 const PFLASH_START: usize = 0x2200_0000;
+#[cfg(target_arch = "aarch64")]
+/// Physical address for pflash#1
+const PFLASH_START: usize = 0x0400_0000;
 const MAGIC: u32 = 0x64_6C_66_70;
 const VERSION: u32 = 0x01;
 

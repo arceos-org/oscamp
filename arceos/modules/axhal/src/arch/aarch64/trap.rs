@@ -6,7 +6,7 @@ use tock_registers::interfaces::Readable;
 
 use super::TrapFrame;
 
-global_asm!(include_str!("trap.S"));
+global_asm!(include_str!("trap.S"), cache_current_task_ptr = sym crate::cpu::cache_current_task_ptr);
 
 #[repr(u8)]
 #[derive(Debug)]
@@ -65,6 +65,7 @@ fn handle_instruction_abort(tf: &TrapFrame, iss: u64, is_user: bool) {
 }
 
 fn handle_data_abort(tf: &TrapFrame, iss: u64, is_user: bool) {
+    debug!("ISS={:#x} tf={:#x?} is_user={}", iss, tf, is_user);
     let wnr = (iss & (1 << 6)) != 0; // WnR: Write not Read
     let cm = (iss & (1 << 8)) != 0; // CM: Cache maintenance
     let mut access_flags = if wnr & !cm {
@@ -98,13 +99,22 @@ fn handle_sync_exception(tf: &mut TrapFrame) {
     let esr = ESR_EL1.extract();
     let iss = esr.read(ESR_EL1::ISS);
     match esr.read_as_enum(ESR_EL1::EC) {
+        #[cfg(feature = "uspace")]
         Some(ESR_EL1::EC::Value::SVC64) => {
-            warn!("No syscall is supported currently!");
+            tf.r[0] = crate::trap::handle_syscall(tf, tf.r[8] as usize) as u64;
         }
         Some(ESR_EL1::EC::Value::InstrAbortLowerEL) => handle_instruction_abort(tf, iss, true),
         Some(ESR_EL1::EC::Value::InstrAbortCurrentEL) => handle_instruction_abort(tf, iss, false),
         Some(ESR_EL1::EC::Value::DataAbortLowerEL) => handle_data_abort(tf, iss, true),
         Some(ESR_EL1::EC::Value::DataAbortCurrentEL) => handle_data_abort(tf, iss, false),
+        Some(ESR_EL1::EC::Value::TrappedFP) => {
+            debug!("Trapped FP @ {:#x} ", tf.elr);
+            tf.elr += 4;
+        }
+        Some(ESR_EL1::EC::Value::Unknown) => {
+            debug!("Unknown exception @ {:#x} ", tf.elr);
+            tf.elr += 4;
+        }
         Some(ESR_EL1::EC::Value::Brk64) => {
             debug!("BRK #{:#x} @ {:#x} ", iss, tf.elr);
             tf.elr += 4;

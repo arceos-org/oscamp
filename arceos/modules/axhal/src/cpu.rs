@@ -1,5 +1,7 @@
 //! CPU-related operations.
 
+use axlog::ax_println;
+
 #[percpu::def_percpu]
 static CPU_ID: usize = 0;
 
@@ -22,6 +24,18 @@ pub fn this_cpu_is_bsp() -> bool {
     IS_BSP.read_current()
 }
 
+/// Stores the pointer to the current task in the SP_EL0 register.
+///
+/// In aarch64 architecture, we use `SP_EL0` as the read cache for
+/// the current task pointer. And this function will update this cache.
+#[cfg(target_arch = "aarch64")]
+pub(crate) unsafe fn cache_current_task_ptr() {
+    use tock_registers::interfaces::Writeable;
+    aarch64_cpu::registers::SP_EL0.set(CURRENT_TASK_PTR.read_current_raw() as u64);
+    //use tock_registers::interfaces::Readable;
+    //ax_println!("cache_current_task_ptr: SP_EL0={:#x?}", aarch64_cpu::registers::SP_EL0.get());
+}
+
 /// Gets the pointer to the current task with preemption-safety.
 ///
 /// Preemption may be enabled when calling this function. This function will
@@ -41,9 +55,10 @@ pub fn current_task_ptr<T>() -> *const T {
     }
     #[cfg(target_arch = "aarch64")]
     {
-        // on ARM64, we use `SP_EL0` to store the task pointer.
+        //on ARM64, we use `SP_EL0` to store the task pointer.
         use tock_registers::interfaces::Readable;
         aarch64_cpu::registers::SP_EL0.get() as _
+       
     }
 }
 
@@ -68,8 +83,9 @@ pub unsafe fn set_current_task_ptr<T>(ptr: *const T) {
     }
     #[cfg(target_arch = "aarch64")]
     {
-        use tock_registers::interfaces::Writeable;
-        aarch64_cpu::registers::SP_EL0.set(ptr as u64)
+        let _guard = kernel_guard::IrqSave::new();
+        CURRENT_TASK_PTR.write_current_raw(ptr as usize);
+        cache_current_task_ptr();
     }
 }
 

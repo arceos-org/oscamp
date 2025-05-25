@@ -55,6 +55,9 @@ members = [
     "exercises/sys_map",
     "exercises/simple_hv",
     "exercises/ramfs_rename",
+
+    "examples/helloworld",
+    "examples/httpserver",
 ]
 
 [workspace.package]
